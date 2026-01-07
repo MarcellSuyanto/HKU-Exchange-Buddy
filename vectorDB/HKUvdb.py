@@ -13,7 +13,7 @@ def get_hku_courses():
     for department in departments:
         codes = courses[department]
         for code in codes:
-            file_path = f"HKUCourseOutlines/{department}/{code}.csv"
+            file_path = f"vectorDB/HKUCourseOutlines/{department}/{code}.csv"
             data = pd.read_csv(file_path)
             df = pd.concat([df, data], ignore_index=True)
     return df
@@ -39,6 +39,7 @@ def create_vector_db():
         documents=course_title_descriptions,
         metadatas= metadata
     )
+    client.clear_system_cache()
     return collection 
 
 def query_db(query:dict, n_results=5):
@@ -51,13 +52,19 @@ def query_db(query:dict, n_results=5):
     if country := query.get("Country"):
         filters["Country"] = country
 
+    if len(filters) > 1:
+        where_clause = {"$and": [{k: v} for k, v in filters.items()]}
+    else:
+        where_clause = filters if filters else None
+
     results = collection.query(
         query_texts = [desc],
         n_results = n_results,
-        where = filters if filters else None
+        where = where_clause
     )
 
-    results_course_codes = results["ids"]
-    results_course_desc = results["documents"]
-    result_similarity = [float(i*100) for i in results['distances']]
+    result_similarity = results['distances'][0]
+    results_course_codes = results["ids"][0]
+    results_course_desc = results["documents"][0]
 
+    return results_course_codes, results_course_desc, result_similarity
