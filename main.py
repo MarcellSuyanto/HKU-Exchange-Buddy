@@ -1,4 +1,5 @@
 from vectorDB.vdb import *
+from fastapi import FastAPI   
 
 CREATE_DB = False
 RELEVANCE_THRESHOLD = 1.00
@@ -17,7 +18,14 @@ def main():
     host_country: The country being visited
     }
     """
-
+    course_code = None
+    course_description = None
+    course_faculty = None
+    home_university = None
+    host_university = None
+    host_country = None
+    
+    print("Enter the following details for course query (leave blank if not applicable):")
     query = {
         'course_code' : "COMP3314",
         'course_description': "This course introduces algorithms, tools, practices, and applications of machine learning. Topics include core methods such as supervised learning (classification and regression), unsupervised learning (clustering, principal component analysis), Bayesian estimation, neural networks; common practices in data pre-processing, hyper-parameter tuning, and model evaluation; tools/libraries/APIs such as scikit-learn, Theano/Keras, and multi/many-core CPU/GPU programming.",
